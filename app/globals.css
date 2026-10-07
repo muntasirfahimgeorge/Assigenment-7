@@ -1,16 +1,15 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800;900&display=swap");
 
 @import "tailwindcss";
 
 :root {
-  --background: #f8f8f5;
-  --foreground: #172018;
-  --primary: #166534;
-  --primary-dark: #14532d;
-  --secondary: #facc15;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --card: #ffffff;
+  --primary: #008c45;
+  --primary-dark: #075d32;
+  --primary-light: #effbf4;
+  --text: #111827;
+  --muted: #98a2b3;
+  --border: #e7e9ed;
+  --page: #ffffff;
 }
 
 * {
@@ -23,56 +22,143 @@ html {
 
 body {
   margin: 0;
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--page);
+  color: var(--text);
   font-family: "Noto Sans Bengali", Arial, sans-serif;
-}
-
-button,
-a,
-input,
-select {
-  font: inherit;
 }
 
 a {
   color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* =========================
+   BAZARDOR HEADER
+========================= */
+
+.bazar-header {
+  background: #ffffff;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.bazar-container {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.bazar-header-top {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bazar-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: var(--primary);
+}
+
+.bazar-logo-icon {
+  font-size: 31px;
+  line-height: 1;
+}
+
+.bazar-logo-title {
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.bazar-logo-date {
+  margin-top: 3px;
+  color: #9ca3af;
+  font-size: 9px;
+}
+
+.bazar-auth {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.bazar-signin {
+  color: #222222;
+  font-size: 12px;
   text-decoration: none;
 }
 
-.container-main {
-  width: min(100% - 32px, 1200px);
-  margin-inline: auto;
+.bazar-signup {
+  background: var(--primary);
+  color: #ffffff;
+  border-radius: 7px;
+  padding: 10px 17px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
 }
 
-@media (min-width: 640px) {
-  .container-main {
-    width: min(100% - 48px, 1200px);
-  }
+.bazar-categories {
+  height: 49px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-@media (min-width: 1024px) {
-  .container-main {
-    width: min(100% - 64px, 1200px);
-  }
+.bazar-categories::-webkit-scrollbar {
+  display: none;
 }
 
-.ticker-wrapper {
+.bazar-category {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 7px;
+  color: #222222;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.bazar-category:hover {
+  background: #effaf3;
+}
+
+.bazar-category.active {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+/* =========================
+   PRICE TICKER
+========================= */
+
+.bazar-ticker {
+  width: 100%;
   overflow: hidden;
+  background: var(--primary-dark);
+  color: #ffffff;
+}
+
+.bazar-ticker-inner {
+  width: max-content;
+  display: flex;
+  gap: 42px;
+  padding: 7px 0;
+  font-size: 11px;
   white-space: nowrap;
+  animation: bazarTicker 32s linear infinite;
 }
 
-.ticker-track {
-  display: inline-flex;
-  min-width: max-content;
-  animation: ticker 30s linear infinite;
-}
-
-.ticker-track:hover {
-  animation-play-state: paused;
-}
-
-@keyframes ticker {
+@keyframes bazarTicker {
   from {
     transform: translateX(0);
   }
@@ -82,28 +168,295 @@ a {
   }
 }
 
-.skeleton {
-  position: relative;
+/* =========================
+   HERO
+========================= */
+
+.bazar-hero {
+  margin-top: 56px;
+  min-height: 310px;
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  align-items: center;
+  padding: 38px 42px;
   overflow: hidden;
-  background: #e5e7eb;
+  border-radius: 18px;
+  background: var(--primary-light);
 }
 
-.skeleton::after {
-  position: absolute;
-  inset: 0;
-  transform: translateX(-100%);
+.bazar-hero-text {
+  max-width: 520px;
+}
+
+.bazar-eyebrow {
+  margin: 0 0 12px;
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.bazar-hero-title {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(30px, 4vw, 43px);
+  line-height: 1.15;
+  font-weight: 900;
+}
+
+.bazar-hero-description {
+  margin: 17px 0 0;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.bazar-hero-button {
+  display: inline-block;
+  margin-top: 22px;
+  padding: 10px 18px;
+  border-radius: 7px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.bazar-hero-button:hover {
+  background: var(--primary-dark);
+}
+
+.bazar-hero-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================
+   SECTIONS
+========================= */
+
+.bazar-section {
+  margin-top: 52px;
+}
+
+.bazar-section-header {
+  margin-bottom: 17px;
+}
+
+.bazar-section-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.bazar-section-subtitle {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+/* =========================
+   PRODUCT GRID
+========================= */
+
+.bazar-product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 11px;
+}
+
+.bazar-product-grid-small {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+/* =========================
+   PRODUCT CARD
+========================= */
+
+.bazar-product-card {
+  display: block;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: #ffffff;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.bazar-product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+}
+
+.bazar-product-image {
+  height: 126px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #f7f8f3;
+  font-size: 58px;
+}
+
+.bazar-product-body {
+  padding-top: 11px;
+}
+
+.bazar-product-name {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.bazar-product-unit {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.bazar-product-bottom {
+  margin-top: 12px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.bazar-price-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.bazar-price {
+  margin: 2px 0 0;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.bazar-change {
+  border-radius: 20px;
+  padding: 4px 7px;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.bazar-change-up {
+  background: #fff0f0;
+  color: #e53935;
+}
+
+.bazar-change-down {
+  background: #eaf9f0;
+  color: #168044;
+}
+
+.bazar-change-flat {
+  background: #f1f2f4;
+  color: #7b8491;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.bazar-footer {
+  margin-top: 70px;
+  border-top: 1px solid #eeeeee;
+  padding: 30px 0;
+  text-align: center;
+}
+
+.bazar-footer-logo {
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.bazar-footer-text {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+/* =========================
+   SKELETON
+========================= */
+
+.bazar-skeleton {
   background: linear-gradient(
     90deg,
-    transparent,
-    rgba(255, 255, 255, 0.65),
-    transparent
+    #f1f5f9 25%,
+    #e2e8f0 50%,
+    #f1f5f9 75%
   );
-  animation: skeleton-loading 1.5s infinite;
-  content: "";
+  background-size: 200% 100%;
+  animation: bazarSkeleton 1.5s infinite;
 }
 
-@keyframes skeleton-loading {
-  100% {
-    transform: translateX(100%);
+@keyframes bazarSkeleton {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 900px) {
+  .bazar-product-grid-small {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .bazar-product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 650px) {
+  .bazar-container {
+    width: min(100% - 20px, 1120px);
+  }
+
+  .bazar-header-top {
+    height: 64px;
+  }
+
+  .bazar-auth {
+    gap: 8px;
+  }
+
+  .bazar-signin {
+    display: none;
+  }
+
+  .bazar-hero {
+    grid-template-columns: 1fr;
+    margin-top: 25px;
+    padding: 30px 22px;
+  }
+
+  .bazar-hero-image {
+    margin-top: 20px;
+  }
+
+  .bazar-product-grid,
+  .bazar-product-grid-small {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bazar-product-image {
+    height: 115px;
   }
 }

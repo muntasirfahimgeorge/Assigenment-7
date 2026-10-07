@@ -1,208 +1,320 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getProducts, Product } from "@/lib/api";
 
-const navItems = [
-  { label: "সব", href: "/" },
-  { label: "চাল", href: "/category/chal" },
-  { label: "ডাল", href: "/category/dal" },
-  { label: "তেল", href: "/category/tel" },
-  { label: "সবজি", href: "/category/shobji" },
-  { label: "মাছ", href: "/category/mach" },
-  { label: "মাংস", href: "/category/mangsho" },
-];
+function bn(value: number) {
+  return value.toLocaleString("bn-BD");
+}
 
-const tickerItems = [
-  "🍚 চাল — ৭২ টাকা/কেজি ▲ ২.১%",
-  "🥔 আলু — ৩৮ টাকা/কেজি ▼ ১.৫%",
-  "🧅 পেঁয়াজ — ৯৫ টাকা/কেজি ▲ ৩.২%",
-  "🌶️ মরিচ — ২২০ টাকা/কেজি ▲ ১.৮%",
-  "🐟 ইলিশ — ১,৮৫০ টাকা/কেজি ▼ ২.৯%",
-  "🥚 ডিম — ১৩৫ টাকা/ডজন — ০.০%",
-];
+function unitName(unit: Product["unit"]) {
+  const units = {
+    kg: "কেজি",
+    litre: "লিটার",
+    dozen: "ডজন",
+    piece: "পিস",
+  };
 
-export default function HomePage() {
+  return units[unit];
+}
+
+function ProductCard({ product }: { product: Product }) {
+  const isUp = product.change.dir === "up";
+  const isDown = product.change.dir === "down";
+
   return (
-    <main className="min-h-screen">
-      {/* Navbar */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="container-main">
-          <div className="flex min-h-[76px] items-center justify-between gap-4">
-            {/* Logo */}
-            <Link href="/" className="flex shrink-0 items-center gap-3">
-              <Image
-                src="/logo-icon.png"
-                alt="বাজার দর"
-                width={46}
-                height={46}
-                className="h-11 w-11 object-contain"
-              />
+    <Link
+      href={`/product/${product.slug}`}
+      className="bazar-product-card"
+    >
+      <div className="bazar-product-image">
+        {product.image}
+      </div>
+
+      <div className="bazar-product-body">
+        <h3 className="bazar-product-name">
+          {product.nameBn}
+        </h3>
+
+        <p className="bazar-product-unit">
+          প্রতি {unitName(product.unit)}
+        </p>
+
+        <div className="bazar-product-bottom">
+          <div>
+            <p className="bazar-price-label">
+              আজকের দাম
+            </p>
+
+            <p className="bazar-price">
+              {bn(product.today)} টাকা
+            </p>
+          </div>
+
+          <span
+            className={`bazar-change ${
+              isUp
+                ? "bazar-change-up"
+                : isDown
+                  ? "bazar-change-down"
+                  : "bazar-change-flat"
+            }`}
+          >
+            {isUp ? "▲" : isDown ? "▼" : "—"}{" "}
+            {bn(Math.abs(product.change.pct))}%
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+const categories = [
+  ["সব", ""],
+  ["চাল", "chal"],
+  ["ডাল", "dal"],
+  ["তেল", "tel"],
+  ["সবজি", "sobji"],
+  ["মাছ", "mach"],
+  ["মাংস", "mangsho"],
+  ["ডিম-দুধ", "dim-dui"],
+  ["মসলা", "mosla"],
+];
+
+export default async function Home() {
+  const products = await getProducts();
+
+  const rising = products
+    .filter((product) => product.change.dir === "up")
+    .sort((a, b) => b.change.pct - a.change.pct)
+    .slice(0, 6);
+
+  const falling = products
+    .filter((product) => product.change.dir === "down")
+    .sort((a, b) => a.change.pct - b.change.pct)
+    .slice(0, 6);
+
+  const tickerProducts = [...products, ...products];
+
+  return (
+    <main className="min-h-screen bg-white text-gray-900">
+
+      {/* HEADER */}
+      <header className="bazar-header">
+        <div className="bazar-container">
+
+          <div className="bazar-header-top">
+            <Link
+              href="/"
+              className="bazar-logo"
+            >
+              <span className="bazar-logo-icon">
+                🛒
+              </span>
 
               <div>
-                <div className="text-xl font-extrabold text-green-800 sm:text-2xl">
+                <div className="bazar-logo-title">
                   বাজার দর
                 </div>
 
-                <div className="text-xs text-gray-500">
+                <div className="bazar-logo-date">
                   ৮ অক্টোবর ২০২৬
                 </div>
               </div>
             </Link>
 
-            {/* Auth */}
-            <div className="flex items-center gap-2">
+            <div className="bazar-auth">
               <Link
                 href="/signin"
-                className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 sm:block"
+                className="bazar-signin"
               >
                 সাইন ইন
               </Link>
 
               <Link
                 href="/signup"
-                className="rounded-lg bg-green-700 px-3 py-2 text-sm font-semibold text-white hover:bg-green-800 sm:px-4"
+                className="bazar-signup"
               >
                 সাইন আপ
               </Link>
             </div>
           </div>
 
-          {/* Category navigation */}
-          <nav className="flex gap-1 overflow-x-auto border-t border-gray-100 py-2">
-            {navItems.map((item, index) => (
+          <nav className="bazar-categories">
+            {categories.map(([name, slug]) => (
               <Link
-                key={item.label}
-                href={item.href}
-                className={`shrink-0 rounded-lg px-4 py-2 text-sm font-semibold transition ${
-                  index === 0
-                    ? "bg-green-700 text-white"
-                    : "text-gray-600 hover:bg-green-50 hover:text-green-700"
+                key={name}
+                href={
+                  slug
+                    ? `/category/${slug}`
+                    : "/"
+                }
+                className={`bazar-category ${
+                  slug === "" ? "active" : ""
                 }`}
               >
-                {item.label}
+                {name}
               </Link>
             ))}
           </nav>
-        </div>
 
-        {/* Price ticker */}
-        <div className="border-t border-gray-100 bg-green-900 py-2 text-sm text-white">
-          <div className="ticker-wrapper">
-            <div className="ticker-track">
-              {[...tickerItems, ...tickerItems].map((item, index) => (
-                <span
-                  key={`${item}-${index}`}
-                  className="mx-8 inline-block"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="container-main py-10 sm:py-14 lg:py-20">
-        <div className="grid items-center gap-10 overflow-hidden rounded-3xl bg-green-50 px-6 py-10 sm:px-10 lg:grid-cols-2 lg:px-14">
-          <div>
-            <p className="mb-3 text-sm font-bold text-green-700">
+      {/* PRICE TICKER */}
+      <div className="bazar-ticker">
+        <div className="bazar-ticker-inner">
+          {tickerProducts.map((product, index) => (
+            <span key={`${product.id}-${index}`}>
+              {product.image} {product.nameBn} —{" "}
+              {bn(product.today)} টাকা/
+              {unitName(product.unit)}{" "}
+              {product.change.dir === "up"
+                ? `▲ ${bn(Math.abs(product.change.pct))}%`
+                : product.change.dir === "down"
+                  ? `▼ ${bn(Math.abs(product.change.pct))}%`
+                  : "— ০%"}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="bazar-container">
+
+        {/* HERO */}
+        <section className="bazar-hero">
+
+          <div className="bazar-hero-text">
+            <p className="bazar-eyebrow">
               প্রতিদিনের বাজারের সহজ সমাধান
             </p>
 
-            <h1 className="max-w-xl text-4xl font-extrabold leading-tight text-gray-900 sm:text-5xl">
+            <h1 className="bazar-hero-title">
               আজকের বাজার দর
               <br />
               এক নজরে দেখুন
             </h1>
 
-            <p className="mt-5 max-w-lg text-base leading-7 text-gray-600 sm:text-lg">
-              চাল, ডাল, তেল, সবজি, মাছ ও মাংসসহ প্রয়োজনীয় পণ্যের
-              সর্বশেষ বাজার মূল্য সহজেই জেনে নিন।
+            <p className="bazar-hero-description">
+              প্রয়োজনীয় পণ্যের সর্বশেষ বাজার মূল্য
+              সহজেই দেখে নিন।
             </p>
 
             <a
               href="#সব-পণ্য"
-              className="mt-7 inline-flex rounded-xl bg-green-700 px-6 py-3 font-bold text-white shadow-sm transition hover:bg-green-800"
+              className="bazar-hero-button"
             >
               সব পণ্য দেখুন
             </a>
           </div>
 
-          <div className="relative mx-auto w-full max-w-md">
+          <div className="bazar-hero-image">
             <Image
               src="/bazar-hero.png"
               alt="বাজার দর"
-              width={600}
-              height={500}
+              width={390}
+              height={290}
               priority
-              className="h-auto w-full object-contain"
             />
           </div>
-        </div>
-      </section>
 
-      {/* Temporary sections */}
-      <section className="container-main pb-16">
-        <div className="mb-8">
-          <h2 className="text-2xl font-extrabold text-gray-900">
-            আজকের বাজার
-          </h2>
+        </section>
 
-          <p className="mt-1 text-sm text-gray-500">
-            API থেকে পণ্যের তথ্য এখানে দেখানো হবে।
-          </p>
-        </div>
+        {/* PRICE INCREASE */}
+        <section className="bazar-section">
+          <div className="bazar-section-header">
+            <h2 className="bazar-section-title">
+              আজ দাম বেড়েছে{" "}
+              <span className="text-red-500">
+                ▲
+              </span>
+            </h2>
 
-        <div
+            <p className="bazar-section-subtitle">
+              যেসব পণ্যের দাম আজ বেড়েছে
+            </p>
+          </div>
+
+          <div className="bazar-product-grid bazar-product-grid-small">
+            {rising.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* PRICE DECREASE */}
+        <section className="bazar-section">
+          <div className="bazar-section-header">
+            <h2 className="bazar-section-title">
+              আজ দাম কমেছে{" "}
+              <span className="text-green-600">
+                ▼
+              </span>
+            </h2>
+
+            <p className="bazar-section-subtitle">
+              যেসব পণ্যের দাম আজ কমেছে
+            </p>
+          </div>
+
+          <div className="bazar-product-grid bazar-product-grid-small">
+            {falling.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* ALL PRODUCTS */}
+        <section
           id="সব-পণ্য"
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          className="bazar-section"
         >
-          {[1, 2, 3, 4].map((item) => (
-            <div
-              key={item}
-              className="rounded-2xl border border-gray-200 bg-white p-5"
-            >
-              <div className="mb-4 flex h-28 items-center justify-center rounded-xl bg-gray-50 text-5xl">
-                🛒
-              </div>
+          <div className="bazar-section-header">
+            <h2 className="bazar-section-title">
+              সব পণ্য
+            </h2>
 
-              <h3 className="font-bold text-gray-900">
-                পণ্যের নাম
-              </h3>
+            <p className="bazar-section-subtitle">
+              প্রয়োজনীয় সব পণ্যের আজকের বাজার মূল্য
+            </p>
+          </div>
 
-              <p className="mt-1 text-sm text-gray-500">
-                প্রতি কেজি
-              </p>
+          <div className="bazar-product-grid">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+              />
+            ))}
+          </div>
+        </section>
 
-              <div className="mt-4 flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gray-500">আজকের দাম</p>
-                  <p className="font-extrabold text-gray-900">
-                    ১৪৮ টাকা
-                  </p>
-                </div>
+      </div>
 
-                <span className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-bold text-green-700">
-                  ▲ ২.১%
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* FOOTER */}
+      <footer className="bazar-footer">
+        <div className="bazar-container">
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white">
-        <div className="container-main flex flex-col gap-3 py-7 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            বাজার দর — প্রয়োজনীয় পণ্যের দাম এক নজরে।
-          </p>
+          <div className="bazar-footer-logo">
+            🛒 বাজার দর
+          </div>
 
-          <p>
-            সকল দাম সম্ভাব্য; বাজার অবস্থার ওপর নির্ভর করে পরিবর্তিত হয়।
-          </p>
+          <div className="bazar-footer-text">
+            প্রয়োজনীয় পণ্যের দাম এক নজরে
+          </div>
+
+          <div className="bazar-footer-text">
+            © ২০২৬ বাজার দর
+          </div>
+
         </div>
       </footer>
+
     </main>
   );
 }
