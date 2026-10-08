@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getProducts, Product } from "@/lib/api";
+import BazarHeader from "@/app/components/BazarHeader";
 
 function bn(value: number) {
   return value.toLocaleString("bn-BD");
@@ -68,18 +69,6 @@ function ProductCard({ product }: { product: Product }) {
   );
 }
 
-const categories = [
-  ["সব", ""],
-  ["চাল", "chal"],
-  ["ডাল", "dal"],
-  ["তেল", "tel"],
-  ["সবজি", "sobji"],
-  ["মাছ", "mach"],
-  ["মাংস", "mangsho"],
-  ["ডিম-দুধ", "dim-dui"],
-  ["মসলা", "mosla"],
-];
-
 export default async function Home() {
   const products = await getProducts();
 
@@ -98,67 +87,7 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-white text-gray-900">
 
-      {/* HEADER */}
-      <header className="bazar-header">
-        <div className="bazar-container">
-
-          <div className="bazar-header-top">
-            <Link
-              href="/"
-              className="bazar-logo"
-            >
-              <span className="bazar-logo-icon">
-                🛒
-              </span>
-
-              <div>
-                <div className="bazar-logo-title">
-                  বাজার দর
-                </div>
-
-                <div className="bazar-logo-date">
-                  ৮ অক্টোবর ২০২৬
-                </div>
-              </div>
-            </Link>
-
-            <div className="bazar-auth">
-              <Link
-                href="/signin"
-                className="bazar-signin"
-              >
-                সাইন ইন
-              </Link>
-
-              <Link
-                href="/signup"
-                className="bazar-signup"
-              >
-                সাইন আপ
-              </Link>
-            </div>
-          </div>
-
-          <nav className="bazar-categories">
-            {categories.map(([name, slug]) => (
-              <Link
-                key={name}
-                href={
-                  slug
-                    ? `/category/${slug}`
-                    : "/"
-                }
-                className={`bazar-category ${
-                  slug === "" ? "active" : ""
-                }`}
-              >
-                {name}
-              </Link>
-            ))}
-          </nav>
-
-        </div>
-      </header>
+      <BazarHeader />
 
       {/* PRICE TICKER */}
       <div className="bazar-ticker">
@@ -221,6 +150,7 @@ export default async function Home() {
 
         {/* PRICE INCREASE */}
         <section className="bazar-section">
+
           <div className="bazar-section-header">
             <h2 className="bazar-section-title">
               আজ দাম বেড়েছে{" "}
@@ -242,10 +172,12 @@ export default async function Home() {
               />
             ))}
           </div>
+
         </section>
 
         {/* PRICE DECREASE */}
         <section className="bazar-section">
+
           <div className="bazar-section-header">
             <h2 className="bazar-section-title">
               আজ দাম কমেছে{" "}
@@ -267,6 +199,7 @@ export default async function Home() {
               />
             ))}
           </div>
+
         </section>
 
         {/* ALL PRODUCTS */}
@@ -274,6 +207,7 @@ export default async function Home() {
           id="সব-পণ্য"
           className="bazar-section"
         >
+
           <div className="bazar-section-header">
             <h2 className="bazar-section-title">
               সব পণ্য
@@ -292,6 +226,7 @@ export default async function Home() {
               />
             ))}
           </div>
+
         </section>
 
       </div>

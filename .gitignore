@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Better Auth local database
+auth.db
+auth.db-shm
+auth.db-wal
+# Better Auth local database
+auth.db
+auth.db-shm
+auth.db-wal
