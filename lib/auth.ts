@@ -1,42 +1,57 @@
-import { betterAuth } from "better-auth";
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 
-const dbPath = process.env.NODE_ENV === "production"
-  ? path.join("/tmp", "auth.db")
+const dbPath = process.env.NODE_ENV === "production" 
+  ? "/tmp/auth.db" 
   : path.join(process.cwd(), "auth.db");
 
-if (process.env.NODE_ENV === "production" && !fs.existsSync(dbPath)) {
-  fs.writeFileSync(dbPath, "");
-}
+export const db = new Database(dbPath);
 
-const database = new Database(dbPath);
-
-export const auth = betterAuth({
-  database,
-
-  baseURL:
-    process.env.BETTER_AUTH_URL ||
-    "http://localhost:3000",
-
-  secret:
-    process.env.BETTER_AUTH_SECRET ||
-    "change-this-to-a-long-random-secret",
-
-  emailAndPassword: {
-    enabled: true,
-  },
-
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    },
-
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID || "",
-      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
-    },
-  },
-});
+// Vercel Serverless environment-এ টেবিল না থাকলে অটো তৈরি করার লজিক
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    emailVerified INTEGER NOT NULL,
+    image TEXT,
+    createdAt TEXT NOT NULL,
+    updatedAt TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS session (
+    id TEXT PRIMARY KEY,
+    expiresAt TEXT NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    createdAt TEXT NOT NULL,
+    updatedAt TEXT NOT NULL,
+    ipAddress TEXT,
+    userAgent TEXT,
+    userId TEXT NOT NULL,
+    FOREIGN KEY (userId) REFERENCES user(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS account (
+    id TEXT PRIMARY KEY,
+    accountId TEXT NOT NULL,
+    providerId TEXT NOT NULL,
+    userId TEXT NOT NULL,
+    accessToken TEXT,
+    refreshToken TEXT,
+    idToken TEXT,
+    accessTokenExpiresAt TEXT,
+    refreshTokenExpiresAt TEXT,
+    scope TEXT,
+    password TEXT,
+    createdAt TEXT NOT NULL,
+    updatedAt TEXT NOT NULL,
+    FOREIGN KEY (userId) REFERENCES user(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS verification (
+    id TEXT PRIMARY KEY,
+    identifier TEXT NOT NULL,
+    value TEXT NOT NULL,
+    expiresAt TEXT NOT NULL,
+    createdAt TEXT,
+    updatedAt TEXT
+  );
+`);
