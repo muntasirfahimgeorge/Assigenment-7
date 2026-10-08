@@ -956,4 +956,57 @@ textarea {
   .product-market-table {
     min-width: 600px;
   }
+}.auth-social-button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #e1e5ea;
+  border-radius: 8px;
+  background: #fff;
+  color: #252a2e;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.auth-social-button:hover {
+  background: #f8faf9;
+  border-color: #cfd6d1;
+  transform: translateY(-1px);
+}
+
+.auth-social-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.auth-social-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.google-icon {
+  color: #4285f4;
+}
+
+.github-icon {
+  color: #181717;
+}
+
+.auth-social-icon svg {
+  display: block;
 }
