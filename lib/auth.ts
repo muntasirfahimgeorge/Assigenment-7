@@ -1,7 +1,17 @@
 import { betterAuth } from "better-auth";
 import Database from "better-sqlite3";
+import path from "path";
+import fs from "fs";
 
-const database = new Database("auth.db");
+const dbPath = process.env.NODE_ENV === "production"
+  ? path.join("/tmp", "auth.db")
+  : path.join(process.cwd(), "auth.db");
+
+if (process.env.NODE_ENV === "production" && !fs.existsSync(dbPath)) {
+  fs.writeFileSync(dbPath, "");
+}
+
+const database = new Database(dbPath);
 
 export const auth = betterAuth({
   database,
@@ -20,17 +30,13 @@ export const auth = betterAuth({
 
   socialProviders: {
     google: {
-      clientId:
-        process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret:
-        process.env.GOOGLE_CLIENT_SECRET || "",
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     },
 
     github: {
-      clientId:
-        process.env.GITHUB_CLIENT_ID || "",
-      clientSecret:
-        process.env.GITHUB_CLIENT_SECRET || "",
+      clientId: process.env.GITHUB_CLIENT_ID || "",
+      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
     },
   },
 });
