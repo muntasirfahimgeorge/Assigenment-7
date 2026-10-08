@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
 import { authClient } from "@/lib/auth-client";
-
+import BazarHeader from "@/app/components/BazarHeader";
 export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();

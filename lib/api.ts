@@ -28,6 +28,14 @@ export type Product = {
   markets: Market[];
 };
 
+export type Category = {
+  id: string;
+  slug: string;
+  nameBn: string;
+  icon: string;
+  products: Product[];
+};
+
 export async function getProducts(): Promise<Product[]> {
   const response = await fetch(`${BASE_URL}/products`, {
     cache: "no-store",
@@ -40,22 +48,29 @@ export async function getProducts(): Promise<Product[]> {
   return response.json();
 }
 
-export async function getProduct(slug: string): Promise<Product> {
-  const response = await fetch(`${BASE_URL}/products/${slug}`, {
-    cache: "no-store",
-  });
+export async function getProduct(
+  slug: string,
+): Promise<Product> {
+  const products = await getProducts();
 
-  if (!response.ok) {
+  const product = products.find(
+    (item) => item.slug === slug,
+  );
+
+  if (!product) {
     throw new Error("Product not found");
   }
 
-  return response.json();
+  return product;
 }
 
 export async function getCategories() {
-  const response = await fetch(`${BASE_URL}/categories`, {
-    cache: "no-store",
-  });
+  const response = await fetch(
+    `${BASE_URL}/categories`,
+    {
+      cache: "no-store",
+    },
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch categories");
@@ -64,14 +79,35 @@ export async function getCategories() {
   return response.json();
 }
 
-export async function getCategory(slug: string) {
-  const response = await fetch(`${BASE_URL}/categories/${slug}`, {
-    cache: "no-store",
-  });
+export async function getCategory(
+  slug: string,
+): Promise<Category> {
+  const [categories, products] =
+    await Promise.all([
+      getCategories(),
+      getProducts(),
+    ]);
 
-  if (!response.ok) {
+  const category = categories.find(
+    (item: {
+      id: string;
+      slug: string;
+      nameBn: string;
+      icon: string;
+    }) =>
+      item.slug === slug || item.id === slug,
+  );
+
+  if (!category) {
     throw new Error("Category not found");
   }
 
-  return response.json();
+  const categoryProducts = products.filter(
+    (product) => product.category === slug,
+  );
+
+  return {
+    ...category,
+    products: categoryProducts,
+  };
 }

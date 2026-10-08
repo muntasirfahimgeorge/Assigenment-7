@@ -1,26 +1,27 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { redirect, notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
-import { getProduct } from "@/lib/api";
+import BazarHeader from "@/app/components/BazarHeader";
 import { auth } from "@/lib/auth";
+import { getProduct, Product } from "@/lib/api";
 
 function bn(value: number) {
   return value.toLocaleString("bn-BD");
 }
 
-function unitName(unit: string) {
-  const units: Record<string, string> = {
+function unitName(unit: Product["unit"]) {
+  const units = {
     kg: "কেজি",
     litre: "লিটার",
     dozen: "ডজন",
     piece: "পিস",
   };
 
-  return units[unit] || unit;
+  return units[unit];
 }
 
-export default async function ProductDetails({
+export default async function ProductDetailsPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -32,10 +33,12 @@ export default async function ProductDetails({
   });
 
   if (!session?.user) {
-    redirect(`/signin?callbackUrl=/product/${slug}`);
+    redirect(
+      `/signin?callbackUrl=/product/${slug}`,
+    );
   }
 
-  let product;
+  let product: Product;
 
   try {
     product = await getProduct(slug);
@@ -43,244 +46,243 @@ export default async function ProductDetails({
     notFound();
   }
 
-  if (!product) {
-    notFound();
-  }
+  const marketPrices = product.markets.flatMap(
+    (market) => [market.min, market.max],
+  );
+
+  const minimum = Math.min(...marketPrices);
+  const maximum = Math.max(...marketPrices);
+
+  const average =
+    marketPrices.reduce(
+      (total, price) => total + price,
+      0,
+    ) / marketPrices.length;
 
   const isUp = product.change.dir === "up";
   const isDown = product.change.dir === "down";
 
-  const minPrice =
-    product.markets.length > 0
-      ? Math.min(...product.markets.map((market) => market.min))
-      : product.today;
-
-  const maxPrice =
-    product.markets.length > 0
-      ? Math.max(...product.markets.map((market) => market.max))
-      : product.today;
-
-  const averagePrice =
-    product.markets.length > 0
-      ? product.markets.reduce(
-          (total, market) =>
-            total + (market.min + market.max) / 2,
-          0,
-        ) / product.markets.length
-      : product.today;
-
   return (
-    <main className="min-h-screen bg-[#fafbf8]">
-      <header className="bazar-header">
-        <div className="bazar-container">
-          <div className="bazar-header-top">
-            <Link href="/" className="bazar-logo">
-              <span className="bazar-logo-icon">🛒</span>
+    <main className="product-details-page">
+      <BazarHeader />
 
-              <div>
-                <div className="bazar-logo-title">
-                  বাজার দর
-                </div>
-
-                <div className="bazar-logo-date">
-                  ৮ অক্টোবর ২০২৬
-                </div>
-              </div>
-            </Link>
-
-            <div className="bazar-auth">
-              <Link
-                href="/"
-                className="bazar-signin"
-              >
-                হোম
-              </Link>
-
-              <span className="bazar-signup">
-                {session.user.name}
-              </span>
-            </div>
-          </div>
+      {/* Price ticker */}
+      <div className="bazar-ticker">
+        <div className="bazar-ticker-inner">
+          {[
+            ...product.markets.slice(0, 6),
+            ...product.markets.slice(0, 6),
+          ].map((market, index) => (
+            <span key={`${market.market}-${index}`}>
+              📈 {market.market} —{" "}
+              {bn(market.min)}-{bn(market.max)} টাকা
+            </span>
+          ))}
         </div>
-      </header>
+      </div>
 
-      <div className="bazar-container py-10">
-        <Link
-          href="/"
-          className="mb-6 inline-block text-sm font-semibold text-green-700"
-        >
-          ← সব পণ্যে ফিরে যান
-        </Link>
+      <div className="bazar-container">
+        {/* Breadcrumb */}
+        <div className="product-breadcrumb">
+          <Link href="/">
+            হোম
+          </Link>
 
-        <section className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="rounded-2xl border border-gray-200 bg-white p-5">
-            <div className="flex min-h-[330px] items-center justify-center rounded-xl bg-[#f7f8f3] text-8xl">
+          <span>›</span>
+
+          <Link
+            href={`/category/${product.category}`}
+          >
+            {product.categoryNameBn}
+          </Link>
+
+          <span>›</span>
+
+          <span>{product.nameBn}</span>
+        </div>
+
+        {/* Product summary */}
+        <section className="product-summary-card">
+          <div className="product-summary-left">
+            <div className="product-summary-image">
               {product.image}
             </div>
 
-            <div className="mt-6">
-              <div className="mb-3 flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">
-                  {product.categoryIcon}{" "}
-                  {product.categoryNameBn}
-                </span>
-
-                <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">
-                  প্রতি {unitName(product.unit)}
-                </span>
+            <div>
+              <div className="product-category-label">
+                {product.categoryIcon}{" "}
+                {product.categoryNameBn}
               </div>
 
-              <h1 className="text-3xl font-black text-gray-900">
+              <h1 className="product-details-title">
                 {product.nameBn}
               </h1>
 
-              <p className="mt-2 text-sm leading-6 text-gray-500">
-                বিভিন্ন বাজারে আজকের {product.nameBn} এর
-                সম্ভাব্য বাজারদর।
+              <p className="product-details-unit">
+                প্রতি {unitName(product.unit)}
               </p>
 
-              <div className="mt-5 flex items-end justify-between gap-4">
-                <div>
-                  <p className="text-xs text-gray-400">
-                    আজকের দাম
-                  </p>
-
-                  <p className="text-3xl font-black text-gray-900">
-                    {bn(product.today)} টাকা
-                  </p>
-                </div>
-
-                <span
-                  className={`rounded-full px-3 py-1 text-sm font-bold ${
-                    isUp
-                      ? "bg-red-50 text-red-600"
-                      : isDown
-                        ? "bg-green-50 text-green-600"
-                        : "bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  {isUp
-                    ? "▲"
-                    : isDown
-                      ? "▼"
-                      : "—"}{" "}
-                  {bn(Math.abs(product.change.pct))}%
-                </span>
-              </div>
+              <p className="product-details-description">
+                {product.nameBn} এর আজকের বাজার
+                মূল্য ও বিভিন্ন বাজারের দাম
+                এক নজরে দেখুন।
+              </p>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-6">
-            <h2 className="text-xl font-black">
-              দামের বিস্তারিত
-            </h2>
+          <div className="product-today-price">
+            <span>আজকের দাম</span>
 
-            <p className="mt-1 text-sm text-gray-500">
-              বিভিন্ন বাজারের আজকের মূল্য
-            </p>
+            <strong>
+              {bn(product.today)}
+            </strong>
 
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-xl bg-[#f7f8f3] p-4">
-                <p className="text-xs text-gray-400">
-                  সর্বনিম্ন
-                </p>
+            <small>
+              টাকা / {unitName(product.unit)}
+            </small>
 
-                <p className="mt-2 text-lg font-black">
-                  {bn(minPrice)}
-                </p>
+            <div
+              className={`product-price-change ${
+                isUp
+                  ? "up"
+                  : isDown
+                    ? "down"
+                    : "flat"
+              }`}
+            >
+              {isUp
+                ? "▲"
+                : isDown
+                  ? "▼"
+                  : "—"}{" "}
+              {bn(Math.abs(product.change.pct))}%
+            </div>
+          </div>
+        </section>
 
-                <p className="text-xs text-gray-400">
-                  টাকা
-                </p>
-              </div>
+        {/* Price summary */}
+        <section className="product-price-summary">
+          <h2 className="product-section-title">
+            দামের সারসংক্ষেপ
+          </h2>
 
-              <div className="rounded-xl bg-[#f7f8f3] p-4">
-                <p className="text-xs text-gray-400">
-                  সর্বোচ্চ
-                </p>
+          <div className="product-summary-grid">
+            <div className="product-stat-card">
+              <span className="product-stat-label">
+                সর্বনিম্ন দাম
+              </span>
 
-                <p className="mt-2 text-lg font-black">
-                  {bn(maxPrice)}
-                </p>
+              <strong className="product-stat-value green">
+                {bn(minimum)} টাকা
+              </strong>
 
-                <p className="text-xs text-gray-400">
-                  টাকা
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-[#f7f8f3] p-4">
-                <p className="text-xs text-gray-400">
-                  গড়
-                </p>
-
-                <p className="mt-2 text-lg font-black">
-                  {bn(Math.round(averagePrice))}
-                </p>
-
-                <p className="text-xs text-gray-400">
-                  টাকা
-                </p>
-              </div>
+              <small>
+                বাজারের সর্বনিম্ন মূল্য
+              </small>
             </div>
 
-            <div className="mt-8">
-              <h3 className="mb-3 text-base font-bold">
-                বাজারভিত্তিক আজকের দাম
-              </h3>
+            <div className="product-stat-card">
+              <span className="product-stat-label">
+                সর্বোচ্চ দাম
+              </span>
 
-              <div className="overflow-x-auto rounded-xl border border-gray-200">
-                <div className="min-w-[620px]">
-                  <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] bg-gray-50 px-4 py-3 text-xs font-bold text-gray-500">
-                    <span>বাজার</span>
-                    <span>বিভাগ</span>
-                    <span>সর্বনিম্ন</span>
-                    <span>সর্বোচ্চ</span>
-                  </div>
+              <strong className="product-stat-value red">
+                {bn(maximum)} টাকা
+              </strong>
 
-                  {product.markets.map((market) => (
-                    <div
-                      key={`${market.market}-${market.division}`}
-                      className="grid grid-cols-[1.5fr_1fr_1fr_1fr] border-t border-gray-100 px-4 py-3 text-sm"
-                    >
-                      <span className="font-semibold">
-                        {market.market}
-                      </span>
+              <small>
+                বাজারের সর্বোচ্চ মূল্য
+              </small>
+            </div>
 
-                      <span className="text-gray-500">
+            <div className="product-stat-card">
+              <span className="product-stat-label">
+                গড় দাম
+              </span>
+
+              <strong className="product-stat-value green">
+                {bn(Math.round(average))} টাকা
+              </strong>
+
+              <small>
+                সব বাজারের গড় মূল্য
+              </small>
+            </div>
+          </div>
+        </section>
+
+        {/* Market table */}
+        <section className="product-market-section">
+          <h2 className="product-section-title">
+            বাজারভিত্তিক আজকের দাম
+          </h2>
+
+          <div className="product-market-table-wrapper">
+            <table className="product-market-table">
+              <thead>
+                <tr>
+                  <th>বাজার</th>
+                  <th>বিভাগ</th>
+                  <th>সর্বনিম্ন</th>
+                  <th>সর্বোচ্চ</th>
+                  <th>গড়</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {product.markets.map(
+                  (market) => (
+                    <tr key={market.market}>
+                      <td>{market.market}</td>
+
+                      <td>
                         {market.division}
-                      </span>
+                      </td>
 
-                      <span>
+                      <td>
                         {bn(market.min)} টাকা
-                      </span>
+                      </td>
 
-                      <span>
+                      <td>
                         {bn(market.max)} টাকা
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+                      </td>
+
+                      <td>
+                        {bn(
+                          Math.round(
+                            (market.min +
+                              market.max) /
+                              2,
+                          ),
+                        )}{" "}
+                        টাকা
+                      </td>
+                    </tr>
+                  ),
+                )}
+              </tbody>
+            </table>
           </div>
         </section>
       </div>
 
+      {/* Footer */}
       <footer className="bazar-footer">
-        <div className="bazar-container flex flex-col gap-3 text-center md:flex-row md:items-center md:justify-between md:text-left">
+        <div className="bazar-container bazar-footer-content">
           <div>
             <div className="bazar-footer-logo">
-              🛒 বাজার দর
+              বাজার দর
             </div>
 
-            <div className="bazar-footer-text">
+            <p className="bazar-footer-description">
               বাজার দর — প্রয়োজনীয় পণ্যের দাম এক নজরে।
-            </div>
+            </p>
           </div>
 
-          <div className="bazar-footer-text">
-            সকল দাম সম্ভাব্য; বাজার অবস্থার ওপর নির্ভর করে পরিবর্তিত হয়।
-          </div>
+          <p className="bazar-footer-disclaimer">
+            সকল দাম সম্ভাব্য; বাজার অবস্থার ওপর
+            নির্ভর করে পরিবর্তিত হয়।
+          </p>
         </div>
       </footer>
     </main>
