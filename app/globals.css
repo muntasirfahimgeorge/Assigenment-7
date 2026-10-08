@@ -460,3 +460,37 @@ textarea {
     height: 115px;
   }
 }
+.bazar-footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  text-align: left;
+}
+
+.bazar-footer-description,
+.bazar-footer-disclaimer {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.bazar-footer-disclaimer {
+  max-width: 380px;
+  margin-top: 0;
+  text-align: right;
+}
+
+@media (max-width: 650px) {
+  .bazar-footer-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .bazar-footer-disclaimer {
+    max-width: none;
+    text-align: left;
+  }
+}

@@ -60,7 +60,11 @@ function ProductCard({ product }: { product: Product }) {
                   : "bazar-change-flat"
             }`}
           >
-            {isUp ? "▲" : isDown ? "▼" : "—"}{" "}
+            {isUp
+              ? "▲"
+              : isDown
+                ? "▼"
+                : "—"}{" "}
             {bn(Math.abs(product.change.pct))}%
           </span>
         </div>
@@ -86,10 +90,8 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-white text-gray-900">
-
       <BazarHeader />
 
-      {/* PRICE TICKER */}
       <div className="bazar-ticker">
         <div className="bazar-ticker-inner">
           {tickerProducts.map((product, index) => (
@@ -108,10 +110,7 @@ export default async function Home() {
       </div>
 
       <div className="bazar-container">
-
-        {/* HERO */}
         <section className="bazar-hero">
-
           <div className="bazar-hero-text">
             <p className="bazar-eyebrow">
               প্রতিদিনের বাজারের সহজ সমাধান
@@ -145,18 +144,13 @@ export default async function Home() {
               priority
             />
           </div>
-
         </section>
 
-        {/* PRICE INCREASE */}
         <section className="bazar-section">
-
           <div className="bazar-section-header">
             <h2 className="bazar-section-title">
               আজ দাম বেড়েছে{" "}
-              <span className="text-red-500">
-                ▲
-              </span>
+              <span className="text-red-500">▲</span>
             </h2>
 
             <p className="bazar-section-subtitle">
@@ -172,18 +166,13 @@ export default async function Home() {
               />
             ))}
           </div>
-
         </section>
 
-        {/* PRICE DECREASE */}
         <section className="bazar-section">
-
           <div className="bazar-section-header">
             <h2 className="bazar-section-title">
               আজ দাম কমেছে{" "}
-              <span className="text-green-600">
-                ▼
-              </span>
+              <span className="text-green-600">▼</span>
             </h2>
 
             <p className="bazar-section-subtitle">
@@ -199,15 +188,12 @@ export default async function Home() {
               />
             ))}
           </div>
-
         </section>
 
-        {/* ALL PRODUCTS */}
         <section
           id="সব-পণ্য"
           className="bazar-section"
         >
-
           <div className="bazar-section-header">
             <h2 className="bazar-section-title">
               সব পণ্য
@@ -226,30 +212,27 @@ export default async function Home() {
               />
             ))}
           </div>
-
         </section>
-
       </div>
 
-      {/* FOOTER */}
       <footer className="bazar-footer">
-        <div className="bazar-container">
+        <div className="bazar-container bazar-footer-content">
+          <div>
+            <div className="bazar-footer-logo">
+              বাজার দর
+            </div>
 
-          <div className="bazar-footer-logo">
-            🛒 বাজার দর
+            <p className="bazar-footer-description">
+              বাজার দর — প্রয়োজনীয় পণ্যের দাম এক নজরে।
+            </p>
           </div>
 
-          <div className="bazar-footer-text">
-            প্রয়োজনীয় পণ্যের দাম এক নজরে
-          </div>
-
-          <div className="bazar-footer-text">
-            © ২০২৬ বাজার দর
-          </div>
-
+          <p className="bazar-footer-disclaimer">
+            সকল দাম সম্ভাব্য; বাজার অবস্থার ওপর
+            নির্ভর করে পরিবর্তিত হয়।
+          </p>
         </div>
       </footer>
-
     </main>
   );
 }
