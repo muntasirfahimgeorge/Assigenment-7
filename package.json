@@ -2,13 +2,24 @@
   "name": "bazar-dor",
   "version": "0.1.0",
   "private": true,
-"scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start",
-  "lint": "eslint"
-},
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/unit/*.test.mjs",
+    "test:e2e": "playwright test",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm test",
+    "prepare": "node scripts/install-hooks.mjs",
+    "db:check": "node scripts/auth-db.mjs",
+    "db:migrate": "node scripts/auth-db.mjs --migrate"
+  },
   "dependencies": {
+    "@better-auth/infra": "^0.4.17",
     "@types/pg": "^8.23.1",
     "better-auth": "^1.7.7",
     "lucide-react": "^1.52.0",
@@ -19,13 +30,21 @@
     "react-hot-toast": "^2.6.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.0",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.10",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }
