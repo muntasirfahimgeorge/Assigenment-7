@@ -10,12 +10,7 @@ import { authClient } from "@/lib/auth-client";
 
 function GoogleIcon() {
   return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
       <path
         fill="#4285F4"
         d="M21.35 12.23c0-.72-.06-1.42-.18-2.09H12v3.96h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.26Z"
@@ -60,9 +55,7 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState("");
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const trimmedName = name.trim();
@@ -79,57 +72,52 @@ export default function SignUpPage() {
     }
 
     if (password.length < 8) {
-      toast.error(
-        "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে",
-      );
+      toast.error("পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে");
       return;
     }
 
     setLoading(true);
 
-    await authClient.signUp.email(
-      {
-        name: trimmedName,
-        email: trimmedEmail,
-        password,
-      },
-      {
-        onSuccess: () => {
-          toast.success(
-            "অ্যাকাউন্ট তৈরি হয়েছে। এখন সাইন ইন করুন।",
-          );
-
-          router.push("/signin");
+    try {
+      await authClient.signUp.email(
+        {
+          name: trimmedName,
+          email: trimmedEmail,
+          password,
         },
-
-        onError: (context) => {
-          toast.error(
-            context.error.message ||
-              "সাইন আপ করা যায়নি",
-          );
+        {
+          onSuccess: () => {
+            toast.success("অ্যাকাউন্ট তৈরি হয়েছে। এখন সাইন ইন করুন।");
+            router.push("/signin");
+          },
+          onError: (context) => {
+            toast.error(context.error.message || "সাইন আপ করা যায়নি");
+          },
         },
-      },
-    );
-
-    setLoading(false);
+      );
+    } catch {
+      toast.error("অ্যাকাউন্ট তৈরি করা যাচ্ছে না। পরে আবার চেষ্টা করুন।");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function handleSocialSignUp(
-    provider: "google" | "github",
-  ) {
+  async function handleSocialSignUp(provider: "google" | "github") {
     setSocialLoading(provider);
 
     try {
-      await authClient.signIn.social({
+      const { error } = await authClient.signIn.social({
         provider,
         callbackURL: "/",
       });
+      if (error) {
+        toast.error(error.message || "সাইন আপ করা যায়নি");
+        setSocialLoading("");
+      }
     } catch {
       toast.error(
         `${
-          provider === "google"
-            ? "Google"
-            : "GitHub"
+          provider === "google" ? "Google" : "GitHub"
         } দিয়ে সাইন আপ করা যায়নি`,
       );
 
@@ -145,82 +133,57 @@ export default function SignUpPage() {
         <div className="auth-page">
           <div className="auth-card">
             <div className="auth-header">
-              <div className="auth-icon">
-                🛒
-              </div>
+              <div className="auth-icon">🛒</div>
 
-              <h1 className="auth-title">
-                অ্যাকাউন্ট তৈরি করুন
-              </h1>
+              <h1 className="auth-title">অ্যাকাউন্ট তৈরি করুন</h1>
 
               <p className="auth-subtitle">
                 বাজার দর-এর সাথে যুক্ত হতে সাইন আপ করুন
               </p>
             </div>
 
-            <form
-              onSubmit={handleSubmit}
-              className="auth-form"
-            >
+            <form onSubmit={handleSubmit} className="auth-form">
               <div className="auth-field">
-                <label htmlFor="name">
-                  নাম
-                </label>
+                <label htmlFor="name">নাম</label>
 
                 <input
                   id="name"
                   type="text"
                   value={name}
-                  onChange={(event) =>
-                    setName(event.target.value)
-                  }
+                  onChange={(event) => setName(event.target.value)}
                   placeholder="আপনার নাম"
                   autoComplete="name"
                 />
               </div>
 
               <div className="auth-field">
-                <label htmlFor="email">
-                  ইমেইল
-                </label>
+                <label htmlFor="email">ইমেইল</label>
 
                 <input
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(event) =>
-                    setEmail(event.target.value)
-                  }
+                  onChange={(event) => setEmail(event.target.value)}
                   placeholder="আপনার ইমেইল"
                   autoComplete="email"
                 />
               </div>
 
               <div className="auth-field">
-                <label htmlFor="password">
-                  পাসওয়ার্ড
-                </label>
+                <label htmlFor="password">পাসওয়ার্ড</label>
 
                 <input
                   id="password"
                   type="password"
                   value={password}
-                  onChange={(event) =>
-                    setPassword(event.target.value)
-                  }
+                  onChange={(event) => setPassword(event.target.value)}
                   placeholder="কমপক্ষে ৮ অক্ষর"
                   autoComplete="new-password"
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="auth-submit"
-              >
-                {loading
-                  ? "অ্যাকাউন্ট তৈরি হচ্ছে..."
-                  : "সাইন আপ"}
+              <button type="submit" disabled={loading} className="auth-submit">
+                {loading ? "অ্যাকাউন্ট তৈরি হচ্ছে..." : "সাইন আপ"}
               </button>
             </form>
 
@@ -232,43 +195,32 @@ export default function SignUpPage() {
               <button
                 type="button"
                 disabled={!!socialLoading}
-                onClick={() =>
-                  handleSocialSignUp("google")
-                }
+                onClick={() => handleSocialSignUp("google")}
                 className="auth-social-button"
               >
                 <span className="auth-social-icon google-icon">
                   <GoogleIcon />
                 </span>
 
-                <span>
-                  Google
-                </span>
+                <span>Google</span>
               </button>
 
               <button
                 type="button"
                 disabled={!!socialLoading}
-                onClick={() =>
-                  handleSocialSignUp("github")
-                }
+                onClick={() => handleSocialSignUp("github")}
                 className="auth-social-button"
               >
                 <span className="auth-social-icon github-icon">
                   <GithubIcon />
                 </span>
 
-                <span>
-                  GitHub
-                </span>
+                <span>GitHub</span>
               </button>
             </div>
 
             <p className="auth-footer-text">
-              ইতিমধ্যে অ্যাকাউন্ট আছে?{" "}
-              <Link href="/signin">
-                সাইন ইন করুন
-              </Link>
+              ইতিমধ্যে অ্যাকাউন্ট আছে? <Link href="/signin">সাইন ইন করুন</Link>
             </p>
           </div>
         </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 export default function SortControl({
   slug,
   sort,
@@ -7,43 +9,34 @@ export default function SortControl({
   slug: string;
   sort: string;
 }) {
+  const router = useRouter();
+
   function handleChange(value: string) {
     if (value === "default") {
-      window.location.href = `/category/${slug}`;
+      router.push(`/category/${slug}`, { scroll: false });
       return;
     }
 
-    window.location.href = `/category/${slug}?sort=${value}`;
+    router.push(`/category/${slug}?sort=${value}`, { scroll: false });
   }
 
   return (
     <div className="flex items-center gap-2">
-      <label
-        htmlFor="sort"
-        className="text-sm font-semibold text-gray-600"
-      >
+      <label htmlFor="sort" className="text-sm font-semibold text-gray-600">
         সাজান:
       </label>
 
       <select
         id="sort"
         value={sort}
-        onChange={(event) =>
-          handleChange(event.target.value)
-        }
+        onChange={(event) => handleChange(event.target.value)}
         className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 outline-none focus:border-green-600"
       >
-        <option value="default">
-          ডিফল্ট
-        </option>
+        <option value="default">ডিফল্ট</option>
 
-        <option value="low">
-          দাম: কম থেকে বেশি
-        </option>
+        <option value="low">দাম: কম থেকে বেশি</option>
 
-        <option value="high">
-          দাম: বেশি থেকে কম
-        </option>
+        <option value="high">দাম: বেশি থেকে কম</option>
       </select>
     </div>
   );

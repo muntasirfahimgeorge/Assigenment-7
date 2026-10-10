@@ -19,7 +19,6 @@ export default function Loading() {
       </header>
 
       <div className="bazar-container">
-
         <div className="mt-10 h-72 rounded-2xl bazar-skeleton" />
 
         <section className="mt-12">
@@ -42,7 +41,6 @@ export default function Loading() {
             ))}
           </div>
         </section>
-
       </div>
     </main>
   );

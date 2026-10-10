@@ -12,24 +12,39 @@ export default function ProfilePage() {
 
   const { data: session, isPending } = authClient.useSession();
 
-  const [name, setName] = useState("");
+  const [name, setName] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
-    if (!isPending && !session?.user) {
+    if (!signingOut && !isPending && !session?.user) {
       router.replace("/signin?callbackUrl=/profile");
       return;
     }
+  }, [session, isPending, router, signingOut]);
 
-    if (session?.user) {
-      setName(session.user.name || "");
+  async function handleSignOut() {
+    setSigningOut(true);
+    try {
+      const { error } = await authClient.signOut();
+      if (error) {
+        toast.error(error.message || "সাইন আউট করা যায়নি");
+        setSigningOut(false);
+        return;
+      }
+      toast.success("সাইন আউট হয়েছে");
+      router.replace("/");
+      router.refresh();
+    } catch {
+      toast.error("সাইন আউট করা যাচ্ছে না। পরে আবার চেষ্টা করুন।");
+      setSigningOut(false);
     }
-  }, [session, isPending, router]);
+  }
 
   async function handleUpdate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const trimmedName = name.trim();
+    const trimmedName = (name ?? session?.user.name ?? "").trim();
 
     if (!trimmedName) {
       toast.error("নাম লিখুন");
@@ -38,24 +53,21 @@ export default function ProfilePage() {
 
     setLoading(true);
 
-    const { error } = await authClient.updateUser({
-      name: trimmedName,
-    });
-
-    setLoading(false);
-
-    if (error) {
-      toast.error(
-        error.message || "তথ্য আপডেট করা যায়নি",
-      );
-      return;
+    try {
+      const { error } = await authClient.updateUser({ name: trimmedName });
+      if (error) {
+        toast.error(error.message || "তথ্য আপডেট করা যায়নি");
+        return;
+      }
+      toast.success("তথ্য সফলভাবে আপডেট হয়েছে");
+      await authClient.getSession();
+      setName(null);
+      router.refresh();
+    } catch {
+      toast.error("তথ্য আপডেট করা যাচ্ছে না। পরে আবার চেষ্টা করুন।");
+    } finally {
+      setLoading(false);
     }
-
-    toast.success("তথ্য সফলভাবে আপডেট হয়েছে");
-
-    await authClient.getSession();
-
-    router.refresh();
   }
 
   if (isPending || !session?.user) {
@@ -80,43 +92,21 @@ export default function ProfilePage() {
               <span className="bazar-logo-icon">🛒</span>
 
               <div>
-                <div className="bazar-logo-title">
-                  বাজার দর
-                </div>
+                <div className="bazar-logo-title">বাজার দর</div>
 
-                <div className="bazar-logo-date">
-                  ৮ অক্টোবর ২০২৬
-                </div>
+                <div className="bazar-logo-date">৮ অক্টোবর ২০২৬</div>
               </div>
             </Link>
 
             <div className="bazar-auth">
-              <Link
-                href="/"
-                className="bazar-signin"
-              >
+              <Link href="/" className="bazar-signin">
                 হোম
               </Link>
 
               <button
                 type="button"
-                onClick={async () => {
-                  await authClient.signOut({
-                    fetchOptions: {
-                      onSuccess: () => {
-                        toast.success("সাইন আউট হয়েছে");
-                        router.push("/");
-                        router.refresh();
-                      },
-                      onError: (context) => {
-                        toast.error(
-                          context.error.message ||
-                            "সাইন আউট করা যায়নি",
-                        );
-                      },
-                    },
-                  });
-                }}
+                onClick={handleSignOut}
+                disabled={signingOut}
                 className="bazar-signup border-0 cursor-pointer"
               >
                 সাইন আউট
@@ -137,9 +127,7 @@ export default function ProfilePage() {
 
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <div className="mb-6">
-              <h1 className="text-2xl font-black text-gray-900">
-                My Profile
-              </h1>
+              <h1 className="text-2xl font-black text-gray-900">My Profile</h1>
 
               <p className="mt-2 text-sm text-gray-500">
                 আপনার প্রোফাইলের তথ্য আপডেট করুন।
@@ -147,19 +135,14 @@ export default function ProfilePage() {
             </div>
 
             <div className="mb-6 rounded-xl bg-[#f7f8f3] p-4">
-              <p className="text-xs text-gray-400">
-                ইমেইল
-              </p>
+              <p className="text-xs text-gray-400">ইমেইল</p>
 
               <p className="mt-1 text-sm font-semibold text-gray-800">
                 {session.user.email}
               </p>
             </div>
 
-            <form
-              onSubmit={handleUpdate}
-              className="space-y-5"
-            >
+            <form onSubmit={handleUpdate} className="space-y-5">
               <div>
                 <label
                   htmlFor="name"
@@ -171,10 +154,8 @@ export default function ProfilePage() {
                 <input
                   id="name"
                   type="text"
-                  value={name}
-                  onChange={(e) =>
-                    setName(e.target.value)
-                  }
+                  value={name ?? session.user.name ?? ""}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="আপনার নাম"
                   required
                   className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-green-600 focus:ring-2 focus:ring-green-100"
@@ -186,9 +167,7 @@ export default function ProfilePage() {
                 disabled={loading}
                 className="w-full rounded-lg bg-green-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading
-                  ? "আপডেট হচ্ছে..."
-                  : "Update Information"}
+                {loading ? "আপডেট হচ্ছে..." : "Update Information"}
               </button>
             </form>
           </div>
@@ -198,9 +177,7 @@ export default function ProfilePage() {
       <footer className="bazar-footer">
         <div className="bazar-container flex flex-col gap-3 text-center md:flex-row md:items-center md:justify-between md:text-left">
           <div>
-            <div className="bazar-footer-logo">
-              🛒 বাজার দর
-            </div>
+            <div className="bazar-footer-logo">🛒 বাজার দর</div>
 
             <div className="bazar-footer-text">
               বাজার দর — প্রয়োজনীয় পণ্যের দাম এক নজরে।
