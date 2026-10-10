@@ -2,13 +2,12 @@
   "name": "bazar-dor",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "postinstall": "npm rebuild better-sqlite3"
-  },
+"scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "eslint"
+},
   "dependencies": {
     "@types/pg": "^8.23.1",
     "better-auth": "^1.7.7",
