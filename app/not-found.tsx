@@ -6,9 +6,7 @@ export default function NotFound() {
       <div className="text-center">
         <div className="text-6xl mb-4">🛒</div>
 
-        <h1 className="text-4xl font-extrabold text-gray-900">
-          404
-        </h1>
+        <h1 className="text-4xl font-extrabold text-gray-900">404</h1>
 
         <h2 className="mt-3 text-xl font-bold text-gray-800">
           পেজটি পাওয়া যায়নি

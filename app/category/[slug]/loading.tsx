@@ -11,7 +11,6 @@ export default function Loading() {
       </header>
 
       <div className="bazar-container py-10">
-
         <div className="h-10 w-56 rounded-lg bazar-skeleton" />
 
         <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -30,7 +29,6 @@ export default function Loading() {
             </div>
           ))}
         </div>
-
       </div>
     </main>
   );

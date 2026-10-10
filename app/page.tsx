@@ -23,32 +23,19 @@ function ProductCard({ product }: { product: Product }) {
   const isDown = product.change.dir === "down";
 
   return (
-    <Link
-      href={`/product/${product.slug}`}
-      className="bazar-product-card"
-    >
-      <div className="bazar-product-image">
-        {product.image}
-      </div>
+    <Link href={`/product/${product.slug}`} className="bazar-product-card">
+      <div className="bazar-product-image">{product.image}</div>
 
       <div className="bazar-product-body">
-        <h3 className="bazar-product-name">
-          {product.nameBn}
-        </h3>
+        <h3 className="bazar-product-name">{product.nameBn}</h3>
 
-        <p className="bazar-product-unit">
-          প্রতি {unitName(product.unit)}
-        </p>
+        <p className="bazar-product-unit">প্রতি {unitName(product.unit)}</p>
 
         <div className="bazar-product-bottom">
           <div>
-            <p className="bazar-price-label">
-              আজকের দাম
-            </p>
+            <p className="bazar-price-label">আজকের দাম</p>
 
-            <p className="bazar-price">
-              {bn(product.today)} টাকা
-            </p>
+            <p className="bazar-price">{bn(product.today)} টাকা</p>
           </div>
 
           <span
@@ -60,12 +47,8 @@ function ProductCard({ product }: { product: Product }) {
                   : "bazar-change-flat"
             }`}
           >
-            {isUp
-              ? "▲"
-              : isDown
-                ? "▼"
-                : "—"}{" "}
-            {bn(Math.abs(product.change.pct))}%
+            {isUp ? "▲" : isDown ? "▼" : "—"} {bn(Math.abs(product.change.pct))}
+            %
           </span>
         </div>
       </div>
@@ -96,8 +79,7 @@ export default async function Home() {
         <div className="bazar-ticker-inner">
           {tickerProducts.map((product, index) => (
             <span key={`${product.id}-${index}`}>
-              {product.image} {product.nameBn} —{" "}
-              {bn(product.today)} টাকা/
+              {product.image} {product.nameBn} — {bn(product.today)} টাকা/
               {unitName(product.unit)}{" "}
               {product.change.dir === "up"
                 ? `▲ ${bn(Math.abs(product.change.pct))}%`
@@ -112,9 +94,7 @@ export default async function Home() {
       <div className="bazar-container">
         <section className="bazar-hero">
           <div className="bazar-hero-text">
-            <p className="bazar-eyebrow">
-              প্রতিদিনের বাজারের সহজ সমাধান
-            </p>
+            <p className="bazar-eyebrow">প্রতিদিনের বাজারের সহজ সমাধান</p>
 
             <h1 className="bazar-hero-title">
               আজকের বাজার দর
@@ -123,14 +103,10 @@ export default async function Home() {
             </h1>
 
             <p className="bazar-hero-description">
-              প্রয়োজনীয় পণ্যের সর্বশেষ বাজার মূল্য
-              সহজেই দেখে নিন।
+              প্রয়োজনীয় পণ্যের সর্বশেষ বাজার মূল্য সহজেই দেখে নিন।
             </p>
 
-            <a
-              href="#সব-পণ্য"
-              className="bazar-hero-button"
-            >
+            <a href="#সব-পণ্য" className="bazar-hero-button">
               সব পণ্য দেখুন
             </a>
           </div>
@@ -149,21 +125,15 @@ export default async function Home() {
         <section className="bazar-section">
           <div className="bazar-section-header">
             <h2 className="bazar-section-title">
-              আজ দাম বেড়েছে{" "}
-              <span className="text-red-500">▲</span>
+              আজ দাম বেড়েছে <span className="text-red-500">▲</span>
             </h2>
 
-            <p className="bazar-section-subtitle">
-              যেসব পণ্যের দাম আজ বেড়েছে
-            </p>
+            <p className="bazar-section-subtitle">যেসব পণ্যের দাম আজ বেড়েছে</p>
           </div>
 
           <div className="bazar-product-grid bazar-product-grid-small">
             {rising.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-              />
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </section>
@@ -171,33 +141,22 @@ export default async function Home() {
         <section className="bazar-section">
           <div className="bazar-section-header">
             <h2 className="bazar-section-title">
-              আজ দাম কমেছে{" "}
-              <span className="text-green-600">▼</span>
+              আজ দাম কমেছে <span className="text-green-600">▼</span>
             </h2>
 
-            <p className="bazar-section-subtitle">
-              যেসব পণ্যের দাম আজ কমেছে
-            </p>
+            <p className="bazar-section-subtitle">যেসব পণ্যের দাম আজ কমেছে</p>
           </div>
 
           <div className="bazar-product-grid bazar-product-grid-small">
             {falling.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-              />
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </section>
 
-        <section
-          id="সব-পণ্য"
-          className="bazar-section"
-        >
+        <section id="সব-পণ্য" className="bazar-section">
           <div className="bazar-section-header">
-            <h2 className="bazar-section-title">
-              সব পণ্য
-            </h2>
+            <h2 className="bazar-section-title">সব পণ্য</h2>
 
             <p className="bazar-section-subtitle">
               প্রয়োজনীয় সব পণ্যের আজকের বাজার মূল্য
@@ -206,10 +165,7 @@ export default async function Home() {
 
           <div className="bazar-product-grid">
             {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-              />
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </section>
@@ -218,9 +174,7 @@ export default async function Home() {
       <footer className="bazar-footer">
         <div className="bazar-container bazar-footer-content">
           <div>
-            <div className="bazar-footer-logo">
-              বাজার দর
-            </div>
+            <div className="bazar-footer-logo">বাজার দর</div>
 
             <p className="bazar-footer-description">
               বাজার দর — প্রয়োজনীয় পণ্যের দাম এক নজরে।
@@ -228,8 +182,7 @@ export default async function Home() {
           </div>
 
           <p className="bazar-footer-disclaimer">
-            সকল দাম সম্ভাব্য; বাজার অবস্থার ওপর
-            নির্ভর করে পরিবর্তিত হয়।
+            সকল দাম সম্ভাব্য; বাজার অবস্থার ওপর নির্ভর করে পরিবর্তিত হয়।
           </p>
         </div>
       </footer>

@@ -22,8 +22,7 @@ export default function BazarHeader() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const { data: session, isPending } =
-    authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
 
   async function handleSignOut() {
     await authClient.signOut({
@@ -34,10 +33,7 @@ export default function BazarHeader() {
           router.refresh();
         },
         onError: (context) => {
-          toast.error(
-            context.error.message ||
-              "সাইন আউট করা যায়নি",
-          );
+          toast.error(context.error.message || "সাইন আউট করা যায়নি");
         },
       },
     });
@@ -48,18 +44,12 @@ export default function BazarHeader() {
       <div className="bazar-container">
         <div className="bazar-header-top">
           <Link href="/" className="bazar-logo">
-            <span className="bazar-logo-icon">
-              🛒
-            </span>
+            <span className="bazar-logo-icon">🛒</span>
 
             <div>
-              <div className="bazar-logo-title">
-                বাজার দর
-              </div>
+              <div className="bazar-logo-title">বাজার দর</div>
 
-              <div className="bazar-logo-date">
-                ৮ অক্টোবর ২০২৬
-              </div>
+              <div className="bazar-logo-date">৮ অক্টোবর ২০২৬</div>
             </div>
           </Link>
 
@@ -68,10 +58,7 @@ export default function BazarHeader() {
               <div className="h-8 w-24 rounded-lg bg-gray-100 animate-pulse" />
             ) : session?.user ? (
               <>
-                <Link
-                  href="/profile"
-                  className="bazar-signin"
-                >
+                <Link href="/profile" className="bazar-signin">
                   {session.user.name}
                 </Link>
 
@@ -85,17 +72,11 @@ export default function BazarHeader() {
               </>
             ) : (
               <>
-                <Link
-                  href="/signin"
-                  className="bazar-signin"
-                >
+                <Link href="/signin" className="bazar-signin">
                   সাইন ইন
                 </Link>
 
-                <Link
-                  href="/signup"
-                  className="bazar-signup"
-                >
+                <Link href="/signup" className="bazar-signup">
                   সাইন আপ
                 </Link>
               </>
@@ -106,21 +87,13 @@ export default function BazarHeader() {
         <nav className="bazar-categories">
           {categories.map(([name, slug]) => {
             const isActive =
-              slug === ""
-                ? pathname === "/"
-                : pathname === `/category/${slug}`;
+              slug === "" ? pathname === "/" : pathname === `/category/${slug}`;
 
             return (
               <Link
                 key={name}
-                href={
-                  slug
-                    ? `/category/${slug}`
-                    : "/"
-                }
-                className={`bazar-category ${
-                  isActive ? "active" : ""
-                }`}
+                href={slug ? `/category/${slug}` : "/"}
+                className={`bazar-category ${isActive ? "active" : ""}`}
               >
                 {name}
               </Link>
