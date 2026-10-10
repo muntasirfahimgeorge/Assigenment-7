@@ -10,12 +10,7 @@ import { authClient } from "@/lib/auth-client";
 
 function GoogleIcon() {
   return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
       <path
         fill="#4285F4"
         d="M21.35 12.23c0-.72-.06-1.42-.18-2.09H12v3.96h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.26Z"
@@ -54,17 +49,21 @@ export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const requestedCallback = searchParams.get("callbackUrl") || "/";
   const callbackUrl =
-    searchParams.get("callbackUrl") || "/";
+    requestedCallback.startsWith("/") &&
+    !requestedCallback.startsWith("//") &&
+    !requestedCallback.includes("\\") &&
+    !/[\u0000-\u0020\u007f]/.test(requestedCallback)
+      ? requestedCallback
+      : "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState("");
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!email.trim()) {
@@ -79,49 +78,46 @@ export default function SignInPage() {
 
     setLoading(true);
 
-    await authClient.signIn.email(
-      {
-        email: email.trim(),
-        password,
-      },
-      {
-        onSuccess: () => {
-          toast.success(
-            "সফলভাবে সাইন ইন হয়েছে",
-          );
-
-          router.push(callbackUrl);
-          router.refresh();
+    try {
+      await authClient.signIn.email(
+        {
+          email: email.trim(),
+          password,
         },
-
-        onError: (context) => {
-          toast.error(
-            context.error.message ||
-              "সাইন ইন করা যায়নি",
-          );
+        {
+          onSuccess: () => {
+            toast.success("সফলভাবে সাইন ইন হয়েছে");
+            router.push(callbackUrl);
+            router.refresh();
+          },
+          onError: (context) => {
+            toast.error(context.error.message || "সাইন ইন করা যায়নি");
+          },
         },
-      },
-    );
-
-    setLoading(false);
+      );
+    } catch {
+      toast.error("সাইন ইন করা যাচ্ছে না। পরে আবার চেষ্টা করুন।");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function handleSocialSignIn(
-    provider: "google" | "github",
-  ) {
+  async function handleSocialSignIn(provider: "google" | "github") {
     setSocialLoading(provider);
 
     try {
-      await authClient.signIn.social({
+      const { error } = await authClient.signIn.social({
         provider,
         callbackURL: callbackUrl,
       });
+      if (error) {
+        toast.error(error.message || "সাইন ইন করা যায়নি");
+        setSocialLoading("");
+      }
     } catch {
       toast.error(
         `${
-          provider === "google"
-            ? "Google"
-            : "GitHub"
+          provider === "google" ? "Google" : "GitHub"
         } দিয়ে সাইন ইন করা যায়নি`,
       );
 
@@ -137,65 +133,44 @@ export default function SignInPage() {
         <div className="auth-page">
           <div className="auth-card">
             <div className="auth-header">
-              <div className="auth-icon">
-                🛒
-              </div>
+              <div className="auth-icon">🛒</div>
 
-              <h1 className="auth-title">
-                সাইন ইন করুন
-              </h1>
+              <h1 className="auth-title">সাইন ইন করুন</h1>
 
               <p className="auth-subtitle">
                 আপনার বাজার দর অ্যাকাউন্টে প্রবেশ করুন
               </p>
             </div>
 
-            <form
-              onSubmit={handleSubmit}
-              className="auth-form"
-            >
+            <form onSubmit={handleSubmit} className="auth-form">
               <div className="auth-field">
-                <label htmlFor="email">
-                  ইমেইল
-                </label>
+                <label htmlFor="email">ইমেইল</label>
 
                 <input
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(event) =>
-                    setEmail(event.target.value)
-                  }
+                  onChange={(event) => setEmail(event.target.value)}
                   placeholder="আপনার ইমেইল"
                   autoComplete="email"
                 />
               </div>
 
               <div className="auth-field">
-                <label htmlFor="password">
-                  পাসওয়ার্ড
-                </label>
+                <label htmlFor="password">পাসওয়ার্ড</label>
 
                 <input
                   id="password"
                   type="password"
                   value={password}
-                  onChange={(event) =>
-                    setPassword(event.target.value)
-                  }
+                  onChange={(event) => setPassword(event.target.value)}
                   placeholder="আপনার পাসওয়ার্ড"
                   autoComplete="current-password"
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="auth-submit"
-              >
-                {loading
-                  ? "সাইন ইন হচ্ছে..."
-                  : "সাইন ইন"}
+              <button type="submit" disabled={loading} className="auth-submit">
+                {loading ? "সাইন ইন হচ্ছে..." : "সাইন ইন"}
               </button>
             </form>
 
@@ -207,43 +182,32 @@ export default function SignInPage() {
               <button
                 type="button"
                 disabled={!!socialLoading}
-                onClick={() =>
-                  handleSocialSignIn("google")
-                }
+                onClick={() => handleSocialSignIn("google")}
                 className="auth-social-button"
               >
                 <span className="auth-social-icon google-icon">
                   <GoogleIcon />
                 </span>
 
-                <span>
-                  Google
-                </span>
+                <span>Google</span>
               </button>
 
               <button
                 type="button"
                 disabled={!!socialLoading}
-                onClick={() =>
-                  handleSocialSignIn("github")
-                }
+                onClick={() => handleSocialSignIn("github")}
                 className="auth-social-button"
               >
                 <span className="auth-social-icon github-icon">
                   <GithubIcon />
                 </span>
 
-                <span>
-                  GitHub
-                </span>
+                <span>GitHub</span>
               </button>
             </div>
 
             <p className="auth-footer-text">
-              অ্যাকাউন্ট নেই?{" "}
-              <Link href="/signup">
-                সাইন আপ করুন
-              </Link>
+              অ্যাকাউন্ট নেই? <Link href="/signup">সাইন আপ করুন</Link>
             </p>
           </div>
         </div>
