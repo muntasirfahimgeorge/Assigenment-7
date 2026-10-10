@@ -20,12 +20,16 @@ Users can:
 
 ## Technologies
 
+For database and authentication configuration, follow [PostgreSQL setup](POSTGRES_SETUP.md). The assignment requirements are recorded in [requirets.md](requirets.md).
+
+For pre-commit hooks, linting, formatting, and deployment tests, follow [Code quality and tests](QUALITY.md).
+
 - Next.js
 - React
 - TypeScript
 - Tailwind CSS
 - Better Auth
-- SQLite / better-sqlite3
+- PostgreSQL / node-postgres (pg)
 - React Hot Toast
 - Lucide React
 - REST API
@@ -158,3 +162,4 @@ bazar-dor/
 ├── .env.local
 ├── package.json
 └── README.md
+```
