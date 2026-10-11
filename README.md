@@ -163,3 +163,5 @@ bazar-dor/
 ├── package.json
 └── README.md
 ```
+REPO LINK: https://github.com/muntasirfahimgeorge/Assigenment-7
+LIVE LINK: https://assigenment-7bazardor.vercel.app/profile
